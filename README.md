@@ -70,8 +70,8 @@ EMAIL_PASSWORD = "앱 비밀번호"
 
 ### 🔗 배포 링크 & 저장소
 
-- 배포 링크: https://your-name.streamlit.app
-- GitHub: https://github.com/your-name/emotion-marketing-app
+- 배포 링크: https://ai-marketing-message-2qcbof8sejevxz3cfjnhs8.streamlit.app/
+- GitHub: [https://github.com/your-name/emotion-marketing-app](https://github.com/SNSSNSKSSK/ai-marketing-message)
 
 ---
 
