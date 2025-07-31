@@ -5,6 +5,7 @@ import pandas as pd
 import smtplib
 from email.mime.text import MIMEText
 from datetime import datetime
+import sqlite3
 
 # GPT API 키 불러오기
 openai.api_key = st.secrets["OPENAI_API_KEY"]
@@ -27,6 +28,27 @@ def send_email(to_email, subject, body):
     server.login(from_email, app_password)
     server.send_message(msg)
     server.quit()
+
+# SQLite DB 연결
+conn = sqlite3.connect("customer_data.db", check_same_thread=False)
+c = conn.cursor()
+c.execute("""
+CREATE TABLE IF NOT EXISTS messages (
+    name TEXT,
+    email TEXT,
+    review TEXT,
+    emotion TEXT,
+    tag TEXT,
+    message TEXT,
+    timestamp TEXT
+)
+""")
+conn.commit()
+
+def save_to_db(name, email, review, emotion, tag, message, timestamp):
+    c.execute("INSERT INTO messages VALUES (?, ?, ?, ?, ?, ?, ?)",
+              (name, email, review, emotion, tag, message, timestamp))
+    conn.commit()
 
 # 세션 초기화
 if "emotion_counts" not in st.session_state:
@@ -97,6 +119,9 @@ with input_tab:
             st.markdown("### 📩 생성된 마케팅 메시지:")
             st.success(message)
 
+            # DB 저장
+            save_to_db(name, email, review, emotion, topic, message, timestamp)
+
             # CSV 저장용
             st.session_state.history.append({
                 "이름": name,
@@ -151,4 +176,5 @@ with dashboard_tab:
         df_feedback = pd.DataFrame(st.session_state.feedback)
         feedback_count = df_feedback['피드백'].value_counts()
         st.bar_chart(feedback_count)
+
 
