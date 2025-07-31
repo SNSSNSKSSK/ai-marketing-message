@@ -2,12 +2,30 @@ import streamlit as st
 import openai
 import matplotlib.pyplot as plt
 import pandas as pd
+import smtplib
+from email.mime.text import MIMEText
 
 # GPT API 키 불러오기
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 st.set_page_config(page_title="AI 감정 기반 마케팅 메시지 생성기")
 st.title("🧠 감정 맞춤 마케팅 메시지 생성기")
+
+# 이메일 전송 함수
+def send_email(to_email, subject, body):
+    from_email = st.secrets["EMAIL"]
+    app_password = st.secrets["EMAIL_PASSWORD"]
+
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From'] = from_email
+    msg['To'] = to_email
+
+    server = smtplib.SMTP("smtp.gmail.com", 587)
+    server.starttls()
+    server.login(from_email, app_password)
+    server.send_message(msg)
+    server.quit()
 
 # 사용자 정보 입력 폼
 with st.form("user_info"):
@@ -82,4 +100,7 @@ if submitted and review:
         ax.bar(labels, values, color=["green", "gray", "red"])
         st.pyplot(fig)
 
-
+        # 이메일 전송 버튼
+        if st.button("📧 이메일로 보내기"):
+            send_email(email, "AI 감정 메시지", message)
+            st.success("✅ 이메일이 성공적으로 전송되었습니다!")
